@@ -386,6 +386,7 @@ class MyAppTestCase(object):
                 _item = item.response
                 if _item is None:
                     exceptional.append(item)
+                    continue
                 if _item.status_code == 200:
                     content = _item.content
                     if content is None or content == '':
