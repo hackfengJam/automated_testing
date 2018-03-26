@@ -28,9 +28,9 @@ _app_name = 'app'
 """
 # json file a structure is a list/array of the following dictionaries
 obj = dict(
-    path_kwargs=dict(),  # example: if you have a route, is app.routes("/aa/bb/\<id\>"), the path_kwargs= {"id": 1}
+    path_kwargs=dict(),  # example: if you have a route, is app.routes("/aa/bb/<\id>"), the path_kwargs= {"id": 1}
     method="",  # method = "GET"/"POST"/"DELETE"/"PUT"/"PATCH", and case-sensitive free. "OPTIONS" and "HEAD" no support, you can overwrite self._init_rs() to support.
-    url="",  # example: if you have a route, is app.routes("/aa/bb/\\<id\>"), the url= "/aa/bb/<id>"
+    url="",  # example: if you have a route, is app.routes("/aa/bb/<\id>"), the url= "/aa/bb/<\id>"
     headers=dict(),
     files=None,
     data=dict(),
