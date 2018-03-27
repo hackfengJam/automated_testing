@@ -12,7 +12,7 @@
 
 ### 你需要的输入
 
-<strong>If you want to know the source code, you should pay attention to *app_by_requests_test.py*</strong>
+<strong>If you want to know the source code, you should look at *app_by_requests_test.py*</strong>
 
 <pre>
 domain = 'http://xxxx/xx'  # 项目部署的服务器地址
