@@ -12,7 +12,7 @@
 
 ### 你需要的输入
 <pre>
-
+If you want to know the source code, you should pay attention to app_by_requests_test.py
 domain = 'http://xxxx/xx'  # 项目部署的服务器地址
 
 # 你的所有蓝图路由应当有一个，注册蓝图的方法/函数
