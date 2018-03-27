@@ -11,8 +11,10 @@
 目前正在完善，希望有小伙伴一起讨论自动化测试，作为一个搞后端开发，自动化测试我觉得很有趣（后续我可能也会去用selenium去写一个测试脚本玩一玩。。。）
 
 ### 你需要的输入
+
+<strong>If you want to know the source code, you should pay attention to *app_by_requests_test.py*</strong>
+
 <pre>
-If you want to know the source code, you should pay attention to app_by_requests_test.py
 domain = 'http://xxxx/xx'  # 项目部署的服务器地址
 
 # 你的所有蓝图路由应当有一个，注册蓝图的方法/函数
