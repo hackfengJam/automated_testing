@@ -12,8 +12,8 @@
 
 ### 你需要的输入
 
-<strong>If you want to know the source code, you should look at *test_master/app_by_requests_test.py*</strong>
-<strong>You can create such a file --> *config/config.yaml*,  like this --> *config/config.yaml.example*, or add all the configuration to the source code as follows.</strong>
+- <strong>If you want to know the source code, you should look at *test_master/app_by_requests_test.py*</strong>
+- <strong>You can create such a file --> *config/config.yaml*,  like this --> *config/config.yaml.example*, or add all the configuration to the source code as follows.</strong>
 
 <pre>
 domain = 'http://xxxx/xx'  # 项目部署的服务器地址
