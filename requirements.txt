@@ -11,3 +11,4 @@ requests==2.12.3
 grequests==0.3.0
 selenium==3.11.0
 gunicorn==19.7.1
+PyYAML==3.12

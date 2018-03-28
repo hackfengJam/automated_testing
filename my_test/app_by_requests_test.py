@@ -15,6 +15,7 @@ import requests
 import exceptions
 from requests import Session, Request
 import os
+from . import config
 
 
 # class MyAsyncRequest(AsyncRequest):
@@ -45,6 +46,8 @@ class MyAppTestCase(object):
 
     def __init__(self, domain, routes_init_file_path, routes_init_method_name, app_file_path, app_name, **kwargs):
 
+        self.domain = domain
+
         # The relative path can also be used
         self.routes_init_file_path = routes_init_file_path
         self.routes_init_method_name = routes_init_method_name
@@ -57,12 +60,6 @@ class MyAppTestCase(object):
 
         self.headers = dict()
 
-        # web.register_blueprints()
-        # self.url_map = app.url_map
-        # self.domain = 'http://localhost:5000'
-        # self.domain = 'http://120.27.129.215:8087/api'
-        self.domain = domain
-        # self.domain = 'http://testing.ecams.cloudcare.cn:8100'
         self.validate_dict = dict()  # TODO
 
         self.url_dict = None
@@ -94,7 +91,7 @@ class MyAppTestCase(object):
         if "input_data_path" in kwargs:
             self.input_data_path = kwargs["input_data_path"]
         else:
-            self.input_data_path = None
+            self.input_data_path = config.get("data_path", {}).get("input", "")
 
     def _do_some_init(self):
         self._init_app()
@@ -156,21 +153,12 @@ class MyAppTestCase(object):
         self.url_dict = dict()
         url_map = self.app.url_map
         for i in url_map.iter_rules():
-            # print i.rule, i.methods - set(['OPTIONS', 'HEAD'])
             key = i.endpoint.split('.')[0]
             if key in self.url_dict:
                 self.url_dict[key].add(i)
             else:
-                self.url_dict[key] = set([i])
-        """
-        keys = url_dict.keys()
-        print keys
-        ['serverapi0', u'cost', 'static', 'cdnapi0', 'sync_instances', 'sync_system_image', 
-        'databaseapi0', 'security_groupapi0', u'script', 'sync_cdn_instances', u'token', 
-        'sync_slb_instances', 'snapshotapi0', 'sync_oss_instances', 'floatingipapi0', 
-        u'inventory', 'objectstorageapi0', 'imageapi0', u'auth', 'natapi0', u'user', 
-        'diskapi0', 'loadbalancerapi0', 'vswitchapi0', 'sync_rds_instances', 'vpcapi0']
-        """
+                self.url_dict[key] = set()
+                self.url_dict[key].add(i)
 
     def get_input_data(self):
         # quote from requests.Session().request()

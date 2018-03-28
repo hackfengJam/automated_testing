@@ -9,7 +9,7 @@ import json
 from grequests import AsyncRequest
 from functools import partial
 from werkzeug.routing import Rule
-from . import constant
+from my_test import constant
 import imp
 import requests
 import exceptions
@@ -60,7 +60,6 @@ class MyAppTestCase(object):
         # web.register_blueprints()
         # self.url_map = app.url_map
         # self.domain = 'http://localhost:5000'
-        # self.domain = 'http://120.27.129.215:8087/api'
         self.domain = domain
         # self.domain = 'http://testing.ecams.cloudcare.cn:8100'
         self.validate_dict = dict()  # TODO

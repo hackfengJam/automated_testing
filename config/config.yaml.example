@@ -1,0 +1,12 @@
+domain: 'http://xxxx/xx'
+
+routes:
+  init_file_path: '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
+  init_method_name: 'register_blueprints'
+app:
+  file_path: '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
+  name: 'app'
+
+data_path:
+  input: '/Users/xxxxx/Data/xxx.json'
+#  output: ''
