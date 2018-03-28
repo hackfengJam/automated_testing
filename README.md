@@ -10,10 +10,15 @@
 可以说是灰盒测试了。。。。。。。（你可以我说是强行灰盒，无所谓啦，就是随便撸的代码，能用起来是最好的嘛。。）
 目前正在完善，希望有小伙伴一起讨论自动化测试，作为一个搞后端开发，自动化测试我觉得很有趣（后续我可能也会去用selenium去写一个测试脚本玩一玩。。。）
 
-### 你需要的输入
+---
 
-- <strong>If you want to know the source code, you should look at *test_master/app_by_requests_test.py*</strong>
-- <strong>You can create such a file --> *config/config.yaml*,  like this --> *config/config.yaml.example*, or add all the configuration to the source code as follows.</strong>
+### 注：
+> - <strong>If you want to know the source code, you should look at *test_master/app_by_requests_test.py*</strong>
+
+> - <strong>You can create such a file --> *config/config.yaml*,  like this --> *config/config.yaml.example*, or add all the configuration to the source code as follows.</strong>
+
+
+### 你需要的输入
 
 <pre>
 domain = 'http://xxxx/xx'  # 项目部署的服务器地址
