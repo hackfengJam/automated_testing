@@ -9,7 +9,7 @@ import json
 from grequests import AsyncRequest
 from functools import partial
 from werkzeug.routing import Rule
-from my_test import constant
+from test_master import constant
 import imp
 import requests
 import exceptions

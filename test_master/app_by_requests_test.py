@@ -4,18 +4,21 @@
 __Author__ = "HackFun"
 __Date__ = "2018/3/15 下午2:27"
 import re
-import grequests
-import json
-from grequests import AsyncRequest
-from functools import partial
-from werkzeug.routing import Rule
-from . import constant
-import imp
-import requests
-import exceptions
-from requests import Session, Request
 import os
-from . import config
+import imp
+import json
+import exceptions
+from functools import partial
+
+from werkzeug.routing import Rule
+
+import requests
+from requests import Session, Request
+import grequests
+from grequests import AsyncRequest
+
+from test_master import constant
+from test_master import config
 
 
 # class MyAsyncRequest(AsyncRequest):
@@ -44,17 +47,8 @@ class MyAppTestCase(object):
 
     """
 
-    def __init__(self, domain, routes_init_file_path, routes_init_method_name, app_file_path, app_name, **kwargs):
-
-        self.domain = domain
-
-        # The relative path can also be used
-        self.routes_init_file_path = routes_init_file_path
-        self.routes_init_method_name = routes_init_method_name
-
-        # The relative path can also be used
-        self.app_file_path = app_file_path
-        self.app_name = app_name
+    def __init__(self, *args, **kwargs):
+        self._set_config(*args[:5], **kwargs)
 
         self.app = None
 
@@ -92,6 +86,34 @@ class MyAppTestCase(object):
             self.input_data_path = kwargs["input_data_path"]
         else:
             self.input_data_path = config.get("data_path", {}).get("input", "")
+
+    def _set_config(self, *args, **kwargs):
+        # TODO 'print' needs to be replaced with 'logger'
+        try:
+            if len(args) == len(
+                    ["domain", "routes_init_file_path", "routes_init_method_name", "app_file_path", "app_name"]):
+                domain, routes_init_file_path, routes_init_method_name, app_file_path, app_name = args
+                self.domain = domain if domain is not None and domain != "" else config["domain"]
+
+                # The relative path can also be used
+                self.routes_init_file_path = routes_init_file_path
+                self.routes_init_method_name = routes_init_method_name
+
+                # The relative path can also be used
+                self.app_file_path = app_file_path
+                self.app_name = app_name
+            else:
+                self.domain = config["domain"]
+
+                # The relative path can also be used
+                self.routes_init_file_path = config["routes"]["init_file_path"]
+                self.routes_init_method_name = config["routes"]["init_method_name"]
+
+                # The relative path can also be used
+                self.app_file_path = config["app"]["file_path"]
+                self.app_name = config["app"]["name"]
+        except KeyError as e:
+            print e
 
     def _do_some_init(self):
         self._init_app()
@@ -390,7 +412,8 @@ class MyAppTestCase(object):
             self.output_result(successful, pending, exceptional)
             self.output_data[method] = (successful, pending, exceptional)
 
-    def get_output_data(self):
+    @property
+    def output_data(self):
         """
         # You can overwrite this method in the subclass, set your own strategy
         :return output_data, output_data is assigned in self.output_preprocessor()
@@ -410,23 +433,30 @@ class MyAppTestCase(object):
         self.output_preprocessor()
 
 
-if __name__ == '__main__':
-    domain = 'http://xxxx/xx'
+def main():
+    app_test = MyAppTestCase()
 
-    _routes_init_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
-    _routes_init_method_name = 'register_blueprints'
-
-    _app_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
-    _app_name = 'app'
-
-    input_data_path = "/Users/xxxxx/Data/xxx.json"  # 测试用例
-
-    app_test = MyAppTestCase(domain, _routes_init_file_path, _routes_init_method_name, _app_file_path, _app_name)
     app_test.test_app()
 
-    output_data = app_test.get_output_data()
+    output_data = app_test.output_data
     """
-    # You can overwrite self.get_output_data() in the subclass, set your own strategy
+    # You can overwrite self.output_data() in the subclass, set your own strategy
         output_data is assigned in self.output_preprocessor()
     """
+
     print output_data
+
+
+if __name__ == '__main__':
+    # domain = 'http://xxxx/xx'
+    #
+    # _routes_init_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
+    # _routes_init_method_name = 'register_blueprints'
+    #
+    # _app_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
+    # _app_name = 'app'
+    #
+    # input_data_path = "/Users/xxxxx/Data/xxx.json"  # 测试用例
+    #
+    # app_test = MyAppTestCase(domain, _routes_init_file_path, _routes_init_method_name, _app_file_path, _app_name)
+    main()
