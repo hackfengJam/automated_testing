@@ -80,7 +80,7 @@ class MyAppTestCase(object):
 
         self.rs = None  # rs init in test_app
 
-        self.output_data = None
+        self._output_data = None
 
         if "input_data_path" in kwargs:
             self.input_data_path = kwargs["input_data_path"]
@@ -387,7 +387,7 @@ class MyAppTestCase(object):
         """
         # You can overwrite this method in the subclass, set your own strategy
         """
-        self.output_data = dict()
+        self._output_data = dict()
 
         for method in self.rs.keys():
             successful, pending, exceptional = [], [], []
@@ -410,7 +410,7 @@ class MyAppTestCase(object):
                     else:
                         exceptional.append(item)
             self.output_result(successful, pending, exceptional)
-            self.output_data[method] = (successful, pending, exceptional)
+            self._output_data[method] = (successful, pending, exceptional)
 
     @property
     def output_data(self):
@@ -418,7 +418,11 @@ class MyAppTestCase(object):
         # You can overwrite this method in the subclass, set your own strategy
         :return output_data, output_data is assigned in self.output_preprocessor()
         """
-        return self.output_data
+        return self._output_data
+
+    # @output_data.setter
+    # def set_output_data(self, value):
+    #     self._output_data = value
 
     def test_app(self):
         self._do_some_init()
