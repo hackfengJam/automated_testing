@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+from test_master.main import main
 
 __Author__ = "HackFun"
 __Date__ = "2018/3/15 下午2:27"
@@ -7,13 +8,9 @@ import re
 import os
 import imp
 import json
-import exceptions
 from functools import partial
 
-from werkzeug.routing import Rule
-
 import requests
-from requests import Session, Request
 import grequests
 from grequests import AsyncRequest
 
@@ -435,32 +432,3 @@ class MyAppTestCase(object):
         # print grequests.map(rs, exception_handler=self.exception_handler)
         self.send_request()
         self.output_preprocessor()
-
-
-def main():
-    app_test = MyAppTestCase()
-
-    app_test.test_app()
-
-    output_data = app_test.output_data
-    """
-    # You can overwrite self.output_data() in the subclass, set your own strategy
-        output_data is assigned in self.output_preprocessor()
-    """
-
-    print output_data
-
-
-if __name__ == '__main__':
-    # domain = 'http://xxxx/xx'
-    #
-    # _routes_init_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
-    # _routes_init_method_name = 'register_blueprints'
-    #
-    # _app_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
-    # _app_name = 'app'
-    #
-    # input_data_path = "/Users/xxxxx/Data/xxx.json"  # 测试用例
-    #
-    # app_test = MyAppTestCase(domain, _routes_init_file_path, _routes_init_method_name, _app_file_path, _app_name)
-    main()
