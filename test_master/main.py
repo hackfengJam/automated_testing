@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from test_master.app_by_requests_test import MyAppTestCase
+from test_master.main.app_by_requests_test import MyAppTestCase
 
 __Author__ = "HackFun"
 __Date__ = "2018/6/21 下午3:32"

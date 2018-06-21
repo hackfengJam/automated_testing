@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from test_master.main import main
 
 __Author__ = "HackFun"
 __Date__ = "2018/3/15 下午2:27"
-import re
-import os
 import imp
 import json
+import os
+import re
 from functools import partial
 
 import requests
+
 import grequests
 from grequests import AsyncRequest
-
-from test_master import constant
-from test_master import config
+from test_master.utils import constant
 
 
 # class MyAsyncRequest(AsyncRequest):
@@ -44,13 +42,25 @@ class MyAppTestCase(object):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        self._set_config(*args[:5], **kwargs)
+    def __init__(self, domain, routes_init_file_path, routes_init_method_name, app_file_path, app_name, **kwargs):
+
+        # The relative path can also be used
+        self.routes_init_file_path = routes_init_file_path
+        self.routes_init_method_name = routes_init_method_name
+
+        # The relative path can also be used
+        self.app_file_path = app_file_path
+        self.app_name = app_name
 
         self.app = None
 
         self.headers = dict()
 
+        # web.register_blueprints()
+        # self.url_map = app.url_map
+        # self.domain = 'http://localhost:5000'
+        self.domain = domain
+        # self.domain = 'http://testing.ecams.cloudcare.cn:8100'
         self.validate_dict = dict()  # TODO
 
         self.url_dict = None
@@ -77,49 +87,21 @@ class MyAppTestCase(object):
 
         self.rs = None  # rs init in test_app
 
-        self._output_data = None
+        self.output_data = None
 
         if "input_data_path" in kwargs:
             self.input_data_path = kwargs["input_data_path"]
         else:
-            self.input_data_path = config.get("data_path", {}).get("input", "")
-
-    def _set_config(self, *args, **kwargs):
-        # TODO 'print' needs to be replaced with 'logger'
-        try:
-            if len(args) == len(
-                    ["domain", "routes_init_file_path", "routes_init_method_name", "app_file_path", "app_name"]):
-                domain, routes_init_file_path, routes_init_method_name, app_file_path, app_name = args
-                self.domain = domain if domain is not None and domain != "" else config["domain"]
-
-                # The relative path can also be used
-                self.routes_init_file_path = routes_init_file_path
-                self.routes_init_method_name = routes_init_method_name
-
-                # The relative path can also be used
-                self.app_file_path = app_file_path
-                self.app_name = app_name
-            else:
-                self.domain = config["domain"]
-
-                # The relative path can also be used
-                self.routes_init_file_path = config["routes"]["init_file_path"]
-                self.routes_init_method_name = config["routes"]["init_method_name"]
-
-                # The relative path can also be used
-                self.app_file_path = config["app"]["file_path"]
-                self.app_name = config["app"]["name"]
-        except KeyError as e:
-            print e
+            self.input_data_path = None
 
     def _do_some_init(self):
         self._init_app()
-        self._do_something_for_authentication()
+        self._set_token()
         self._set_url_dict()
         self._set_params_dict()
         self._init_rs()
 
-    def _do_something_for_authentication(self):  # 下面是token验证, 如果你需要其他Authentication, 你可以继承这个方法
+    def _set_token(self):
         token = {
             'x-cc-cuid': 'mN5MGPPFMC49y3HEXieB2H',
             'x-cc-uuid': 'tjJoHJPx4PeM78DfyN3yAJ',
@@ -172,12 +154,21 @@ class MyAppTestCase(object):
         self.url_dict = dict()
         url_map = self.app.url_map
         for i in url_map.iter_rules():
+            # print i.rule, i.methods - set(['OPTIONS', 'HEAD'])
             key = i.endpoint.split('.')[0]
             if key in self.url_dict:
                 self.url_dict[key].add(i)
             else:
-                self.url_dict[key] = set()
-                self.url_dict[key].add(i)
+                self.url_dict[key] = set([i])
+        """
+        keys = url_dict.keys()
+        print keys
+        ['serverapi0', u'cost', 'static', 'cdnapi0', 'sync_instances', 'sync_system_image', 
+        'databaseapi0', 'security_groupapi0', u'script', 'sync_cdn_instances', u'token', 
+        'sync_slb_instances', 'snapshotapi0', 'sync_oss_instances', 'floatingipapi0', 
+        u'inventory', 'objectstorageapi0', 'imageapi0', u'auth', 'natapi0', u'user', 
+        'diskapi0', 'loadbalancerapi0', 'vswitchapi0', 'sync_rds_instances', 'vpcapi0']
+        """
 
     def get_input_data(self):
         # quote from requests.Session().request()
@@ -252,10 +243,15 @@ class MyAppTestCase(object):
         self.params_dict = dict()
         for item in input_data:
             if item['url'] in self.params_dict:
+                # if item['method'] in self.params_dict[item['url']]:
+                #     self.params_dict[item['url']][item['method']].update(item)
+                # else:
+                #     self.params_dict[item['url']][item['method']] = item
                 self.params_dict[item['url']][item['method']] = item
             else:
                 self.params_dict[item['url']] = dict()
                 self.params_dict[item['url']][item['method']] = item
+                # item['method']
 
     def _get_request_args_dict(self, method, url):
         args = self.params_dict.get(url, {}).get(method, {})  # TODO
@@ -321,6 +317,9 @@ class MyAppTestCase(object):
         :return: successful, pending, exceptional
         """
 
+        # res = grequests.map(rs)
+        # res_post = grequests.map(rs_post)
+        # for item in res:
         grequests.map(rs, stream=False, size=5, exception_handler=None, gtimeout=None)
 
     def output_result(self, successful, pending, exceptional, **kwargs):
@@ -384,8 +383,30 @@ class MyAppTestCase(object):
         """
         # You can overwrite this method in the subclass, set your own strategy
         """
-        self._output_data = dict()
+        self.output_data = dict()
 
+        # successful, pending, exceptional = [], [], []
+        # res = grequests.map(rs_get)
+        # # res_post = grequests.map(rs_post)
+        # # for item in res:
+        # for item in rs_get:
+        #     _item = item.response
+        #     if _item is None:
+        #         exceptional.append(item)
+        #     if _item.status_code == 200:
+        #         content = _item.content
+        #         if content is None or content == '':
+        #             content = '{}'
+        #         content = json.loads(content)
+        #         code = content.get('code', -1)
+        #         if code == constant.SUCCESS:
+        #             successful.append(item)
+        #         elif code == constant.ParamsError:
+        #             pending.append(item)
+        #         else:
+        #             exceptional.append(item)
+        # print successful, pending, exceptional
+        # print res
         for method in self.rs.keys():
             successful, pending, exceptional = [], [], []
             items = self.rs[method]
@@ -393,7 +414,6 @@ class MyAppTestCase(object):
                 _item = item.response
                 if _item is None:
                     exceptional.append(item)
-                    continue
                 if _item.status_code == 200:
                     content = _item.content
                     if content is None or content == '':
@@ -407,28 +427,109 @@ class MyAppTestCase(object):
                     else:
                         exceptional.append(item)
             self.output_result(successful, pending, exceptional)
-            self._output_data[method] = (successful, pending, exceptional)
+            self.output_data[method] = (successful, pending, exceptional)
 
-    @property
-    def output_data(self):
+    def get_output_data(self):
         """
         # You can overwrite this method in the subclass, set your own strategy
         :return output_data, output_data is assigned in self.output_preprocessor()
         """
-        return self._output_data
-
-    # @output_data.setter
-    # def set_output_data(self, value):
-    #     self._output_data = value
+        return self.output_data
 
     def test_app(self):
         self._do_some_init()
         for key, urls in self.url_dict.iteritems():  # iteritems() in python3 is items()
+            # for rule in self.url_dict['cost']:
             for rule in urls:
                 for method in self.rs.keys():
                     if method in rule.methods:
                         self.create_request(method, rule)
-
+                """
+                            if 'GET' in rule.methods:
+                    path_kwargs, kwargs = self._get_request_args_dict('GET', rule.rule)
+                    path_kwargs_keys = path_kwargs.keys()
+                    if len(set(rule.arguments) - set(path_kwargs_keys)) != len(set(path_kwargs_keys) - set(rule.arguments)):
+                        if len(rule.arguments) < len(path_kwargs_keys):
+                            # if len(rule.arguments) > len(path_kwargs_keys):
+                            #     print "url: %s -> %s too few path_kwargs_keys" % (rule.rule, 'GET')
+                            #
+                            # else:
+                            #     print "url: %s -> %s too many path_kwargs_keys" % (rule.rule, 'GET')
+                            print "url: %s -> %s, too many path_kwargs" % (rule.rule, 'GET')
+                        else:
+                            print "url: %s -> %s, missing '%s' path_kwargs " % (
+                                rule.rule, 'GET', "', '".join(set(rule.arguments) - set(path_kwargs_keys)))
+                        continue
+    
+                    if len(rule.arguments) == 0:
+                        # rs_get.append(grequests.get(self.construct_url(rule.rule), headers=self.headers))
+                        async_request_method = partial(MyAsyncRequest, 'GET'.upper())
+                        self.rs['GET'].append(
+                            async_request_method(self.construct_url(rule.rule), rule,
+                                                 **kwargs))
+                    else:
+                        # forgery_arguments_dict = self.get_forgery_arguments_dict(rule.arguments, rule)
+                        async_request_method = partial(MyAsyncRequest, 'GET'.upper())
+                        url = rule.rule
+                        arguments = re.findall('(<.*?>)', url)
+    
+                        # TODO need to be optimization
+                        # url = /aa/bb/<string:cc>
+                        for arg in arguments:  # arg = <string:cc>
+                            key = arg[1:-1].split(':')[-1]  # key = cc
+                            # url = re.sub(arg, forgery_arguments_dict[key], url)
+                            url = re.sub(arg, path_kwargs[key], url)
+    
+                        self.rs['GET'].append(async_request_method(self.construct_url(url), rule,
+                                                                   **kwargs))
+    
+                elif 'POST' in rule.methods:
+                    # TODO
+                    # rs_post.append(grequests.post(self.construct_url(rule.rule), headers=self.headers))
+                    async_request_method = partial(MyAsyncRequest, 'POST'.upper())
+                    self.rs['POST'].append(
+                        async_request_method(self.construct_url(rule.rule), rule,
+                                             **self._get_request_args_dict('POST', rule.rule)))
+                else:
+                    # TODO
+                    pass
+                """
+                """
+                if 'GET' in rule.methods:
+                    self.rs.append(grequests.get(self.construct_url(rule.rule), headers=self.headers))
+                elif 'POST' in rule.methods:
+                    self.rs.append(grequests.post(self.construct_url(rule.rule), headers=self.headers))
+                else:
+                    pass
+                """
+                """
+                methods = rulemethods - set(['OPTIONS', 'HEAD'])
+                for method in methods:
+                    async_request_method = partial(AsyncRequest, method.upper())
+                    rs.append(async_request_method(self.construct_url(rule.rule), headers=self.headers))
+                """
         # print grequests.map(rs, exception_handler=self.exception_handler)
         self.send_request()
         self.output_preprocessor()
+
+
+if __name__ == '__main__':
+    domain = 'http://xxxx/xx'
+
+    _routes_init_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
+    _routes_init_method_name = 'register_blueprints'
+
+    _app_file_path = '/Users/xxxxx/Workspaces/xxxx/xxxxx/web.py'
+    _app_name = 'app'
+
+    input_data_path = "/Users/xxxxx/Data/xxx.json"  # 测试用例
+
+    app_test = MyAppTestCase(domain, _routes_init_file_path, _routes_init_method_name, _app_file_path, _app_name)
+    app_test.test_app()
+
+    output_data = app_test.get_output_data()
+    """
+    # You can overwrite self.get_output_data() in the subclass, set your own strategy
+        output_data is assigned in self.output_preprocessor()
+    """
+    print output_data
